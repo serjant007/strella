@@ -1,7 +1,6 @@
 import React from 'react';
 import Icon28AddCircleOutline from '@vkontakte/icons/dist/28/add_circle_outline';
 import { Button, Card, Div, FormLayout, Input } from '@vkontakte/vkui';
-import firebase from 'firebase/app';
 import PropTypes from 'prop-types';
 
 const modes = {
@@ -14,8 +13,8 @@ const statuses = {
   error: 'error',
 };
 
-const DeskCreate = ({ onCreate }) => {
-  const [mode, setMode] = React.useState(modes.form);
+const CreateForm = ({ onSubmit, placeholder, actionTitle }) => {
+  const [mode, setMode] = React.useState(modes.button);
   const [name, setName] = React.useState('');
   const [status, setStatus] = React.useState(statuses.default);
   const reset = () => {
@@ -24,7 +23,7 @@ const DeskCreate = ({ onCreate }) => {
     setName('');
   };
 
-  const createDesk = (event) => {
+  const submit = (event) => {
     if (event) {
       event.preventDefault();
     }
@@ -32,35 +31,28 @@ const DeskCreate = ({ onCreate }) => {
       setStatus(statuses.error);
       return;
     }
-    const db = firebase.firestore();
-
-    db.collection('desks')
-      .add({ name })
-      .then((docRef) => docRef.get())
-      .then((doc) => onCreate({ id: doc.id, ...doc.data() }))
-      .then(reset())
-      .catch(console.error);
+    onSubmit(name).then(reset);
   };
 
   if (mode === modes.button)
     return (
       <Button onClick={() => setMode(modes.form)} before={<Icon28AddCircleOutline />} size="xl">
-        Create desk
+        {actionTitle}
       </Button>
     );
 
   return (
-    <Card size="l" mode="outline">
-      <FormLayout onSubmit={createDesk}>
+    <Card size="l" mode="shadow">
+      <FormLayout onSubmit={submit}>
         <Input
           autoFocus
           value={name}
           onChange={(event) => setName(event.target.value)}
           status={status}
-          placeholder="Add desks name"
+          placeholder={placeholder}
         />
         <Div>
-          <Button onClick={createDesk}>Create desk</Button>
+          <Button onClick={submit}>{actionTitle}</Button>
           <Button onClick={reset} mode="tertiary">
             Cancel
           </Button>
@@ -70,8 +62,10 @@ const DeskCreate = ({ onCreate }) => {
   );
 };
 
-DeskCreate.propTypes = {
-  onCreate: PropTypes.func.isRequired,
+CreateForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  actionTitle: PropTypes.string.isRequired,
+  placeholder: PropTypes.string.isRequired,
 };
 
-export default DeskCreate;
+export default CreateForm;

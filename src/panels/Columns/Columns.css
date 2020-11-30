@@ -1,0 +1,4 @@
+.card__list {
+  flex-grow: 1;
+  height: auto;
+}
