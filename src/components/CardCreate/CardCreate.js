@@ -1,23 +1,21 @@
 import React from 'react';
-import firebase from 'firebase/app';
 import PropTypes from 'prop-types';
 import CreateForm from '../CreateForm/CreateForm';
+import { createCard } from '../../actions/index';
+import Context from '../App/context';
 
-const CardCreate = ({ onCreate, columnId }) => {
-  const createDesk = (name) => {
-    const db = firebase.firestore();
+const CardCreate = ({ columnId }) => {
+  const { addCard } = React.useContext(Context);
 
-    return db
-      .collection('cards')
-      .add({ name, columnId })
-      .then((docRef) => docRef.get())
-      .then((doc) => onCreate({ id: doc.id, ...doc.data() }))
+  const createItem = (name) => {
+    return createCard(name, columnId)
+      .then((doc) => addCard({ id: doc.id, ...doc.data() }))
       .catch(console.error);
   };
 
   return (
     <CreateForm
-      onSubmit={createDesk}
+      onSubmit={createItem}
       placeholder="Введите название карточки"
       actionTitle="Создать карточку"
     />
@@ -25,7 +23,6 @@ const CardCreate = ({ onCreate, columnId }) => {
 };
 
 CardCreate.propTypes = {
-  onCreate: PropTypes.func.isRequired,
   columnId: PropTypes.string.isRequired,
 };
 

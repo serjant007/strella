@@ -1,18 +1,17 @@
 import React from 'react';
 import { Div, Card, Header, Button } from '@vkontakte/vkui';
 import PropTypes from 'prop-types';
-import firebase from 'firebase';
 import './Column.css';
 import Cards from '../Cards/Cards';
+import { deleteColumn } from '../../actions/index';
+import Context from '../../components/App/context';
 
-const Column = ({ name, id, onDelete }) => {
-  const deleteColumn = () => {
-    const db = firebase.firestore();
+const Column = ({ name, id }) => {
+  const { removeColumn } = React.useContext(Context);
 
-    db.collection('columns')
-      .doc(id)
-      .delete()
-      .then(() => onDelete(id))
+  const deleteItem = () => {
+    deleteColumn(id)
+      .then(() => removeColumn(id))
       .catch(console.error);
   };
 
@@ -20,7 +19,7 @@ const Column = ({ name, id, onDelete }) => {
     <Div className="column">
       <div className="column__header">
         <Header>{name}</Header>
-        <Button mode="destructive" onClick={deleteColumn}>
+        <Button mode="destructive" onClick={deleteItem}>
           Удалить
         </Button>
       </div>
@@ -34,7 +33,6 @@ const Column = ({ name, id, onDelete }) => {
 Column.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  onDelete: PropTypes.func.isRequired,
 };
 
 export default Column;

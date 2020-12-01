@@ -1,31 +1,24 @@
-import React from 'react';
-import firebase from 'firebase/app';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 import CreateForm from '../CreateForm/CreateForm';
+import { createDesk } from '../../actions/index';
+import Context from '../App/context';
 
-const DeskCreate = ({ onCreate }) => {
-  const createDesk = (name) => {
-    const db = firebase.firestore();
+const DeskCreate = () => {
+  const { addDesk } = useContext(Context);
 
-    return db
-      .collection('desks')
-      .add({ name })
-      .then((docRef) => docRef.get())
-      .then((doc) => onCreate({ id: doc.id, ...doc.data() }))
+  const createItem = (name) => {
+    return createDesk(name)
+      .then((doc) => addDesk({ id: doc.id, ...doc.data() }))
       .catch(console.error);
   };
 
   return (
     <CreateForm
-      onSubmit={createDesk}
+      onSubmit={createItem}
       placeholder="Введите название доски"
       actionTitle="Создать доску"
     />
   );
-};
-
-DeskCreate.propTypes = {
-  onCreate: PropTypes.func.isRequired,
 };
 
 export default DeskCreate;
